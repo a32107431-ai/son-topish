@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Son topish</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+  /* Layout: one centered column with two views (game, shop) behind a tab switch; the number-line ruler is the game's centerpiece. */
+  :root {
+    --bg: #edf0f3;
+    --surface: #ffffff;
+    --fg: #131e29;
+    --muted: #5b6b7a;
+    --line: #d5dce3;
+    --track: #d9e0e6;
+    --accent: #0b7285;
+    --accent-fg: #ffffff;
+    --up: #0b7285;
+    --down: #c2410c;
+    --win: #2f855a;
+    --coin: #d99a12;
+    --coin-ring: #f3cf72;
+    --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e161d;
+      --surface: #152029;
+      --fg: #e6edf3;
+      --muted: #8fa1b1;
+      --line: #25333f;
+      --track: #22303b;
+      --accent: #3db5c9;
+      --accent-fg: #06222a;
+      --up: #3db5c9;
+      --down: #f08a5d;
+      --win: #5fcb8e;
+      --coin: #f0b43c;
+      --coin-ring: #ffdc8f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e161d;
+    --surface: #152029;
+    --fg: #e6edf3;
+    --muted: #8fa1b1;
+    --line: #25333f;
+    --track: #22303b;
+    --accent: #3db5c9;
+    --accent-fg: #06222a;
+    --up: #3db5c9;
+    --down: #f08a5d;
+    --win: #5fcb8e;
+    --coin: #f0b43c;
+    --coin-ring: #ffdc8f;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    padding-block: 28px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .app { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  .view { display: flex; flex-direction: column; gap: 20px; }
+
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  header h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  header p { margin: 0; color: var(--muted); }
+
+  .coin { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--coin); box-shadow: inset 0 0 0 3px var(--coin-ring); flex: none; }
+  .coins {
+    display: inline-flex; align-items: center; gap: 8px; flex: none;
+    padding: 6px 14px 6px 10px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--line);
+    font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums;
+  }
+
+  .tabs, .levels { display: grid; gap: 6px; padding: 4px; background: var(--track); border-radius: 12px; }
+  .tabs { grid-template-columns: repeat(3, 1fr); }
+  .levels { grid-template-columns: repeat(3, 1fr); }
+  .tabs a {
+    text-align: center; padding: 10px 6px; border-radius: 9px; text-decoration: none;
+    font-weight: 600; font-size: 0.9rem; color: var(--muted);
+  }
+  .levels button {
+    font: inherit; font-weight: 500; font-size: 0.9rem;
+    border: 0; border-radius: 9px; padding: 9px 6px;
+    background: transparent; color: var(--muted); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 0; line-height: 1.25;
+  }
+  .levels button small { font-size: 0.72rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
+  .tabs a[aria-current="page"], .levels button[aria-checked="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(10, 20, 30, 0.12); }
+
+  .board { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px; display: flex; flex-direction: column; gap: 22px; }
+
+  .label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+  .range { font-family: var(--font-display); font-weight: 700; font-size: 3.4rem; line-height: 1; letter-spacing: -0.03em; display: flex; align-items: baseline; gap: 12px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .range .dash { color: var(--muted); font-weight: 500; }
+
+  .ruler { display: flex; flex-direction: column; gap: 8px; }
+  .track { position: relative; height: 12px; border-radius: 6px; background: var(--track); }
+  .span { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: var(--accent); transition: left 0.35s ease, width 0.35s ease; }
+  .tick { position: absolute; top: -5px; width: 3px; height: 22px; margin-left: -1.5px; border-radius: 2px; background: var(--down); }
+  .tick.up { background: var(--up); }
+  .tick.win { background: var(--win); width: 4px; margin-left: -2px; }
+  .tick.secret { background: var(--fg); }
+  .ends { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .status { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .pips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pip { width: 22px; height: 8px; border-radius: 4px; background: var(--track); }
+  .pip.up { background: var(--up); }
+  .pip.down { background: var(--down); }
+  .pip.win { background: var(--win); }
+  .left { font-size: 0.9rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .left b { color: var(--fg); font-family: var(--font-display); font-size: 1.1rem; }
+
+  .notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -8px; }
+  .chip { padding: 4px 12px; border-radius: 999px; border: 1.5px solid var(--accent); font-size: 0.85rem; font-weight: 600; }
+
+  form { display: flex; gap: 10px; }
+  .field { flex: 1; min-width: 0; }
+  input[type="text"] {
+    width: 100%; font: inherit; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem;
+    padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line);
+    background: var(--bg); color: var(--fg); font-variant-numeric: tabular-nums;
+  }
+  input[type="text"]::placeholder { color: var(--muted); font-weight: 500; }
+  .btn {
+    font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 0 22px; min-height: 52px;
+    background: var(--accent); color: var(--accent-fg); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+  }
+  .btn.wide { width: 100%; }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1.5px solid var(--line); }
+  .btn:active { transform: translateY(1px); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  input[type="text"]:focus-visible { outline-offset: 0; border-color: var(--accent); }
+
+  .msg { min-height: 1.6em; margin: -8px 0 -8px; font-weight: 600; font-size: 1.02rem; }
+  .msg.up { color: var(--up); }
+  .msg.down { color: var(--down); }
+  .msg.warn { color: var(--muted); font-weight: 500; font-size: 0.92rem; }
+  .msg.good { color: var(--win); }
+
+  .helpers-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .helpers-head a { font-size: 0.85rem; font-weight: 600; color: var(--accent); text-decoration: none; }
+  .helpers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .helper {
+    display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 10px; text-align: left;
+    font: inherit; color: var(--fg); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer;
+  }
+  .helper:disabled { opacity: 0.45; cursor: default; }
+  .helper .t { flex: 1; min-width: 0; font-size: 0.82rem; font-weight: 600; line-height: 1.2; }
+  .helper .c { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .sym {
+    display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); color: var(--accent-fg);
+    font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+  }
+
+  .result { border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .result h2 { font-family: var(--font-display); font-size: 1.5rem; margin: 0; line-height: 1.2; }
+  .result.won { border-color: var(--win); }
+  .result.won h2 { color: var(--win); }
+  .result p { margin: 0; color: var(--muted); }
+  .result p b { color: var(--fg); }
+  .earned { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .history { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .history li { display: grid; grid-template-columns: 2rem 1fr auto; align-items: baseline; gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .history .n { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .history .g { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+  .history .h { font-size: 0.9rem; font-weight: 600; }
+  .history .h.up { color: var(--up); }
+  .history .h.down { color: var(--down); }
+  .history .h.win { color: var(--win); }
+  .empty { color: var(--muted); font-size: 0.92rem; margin: 0; border-top: 1px solid var(--line); padding-top: 12px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { text-align: center; padding: 4px 0; }
+  .stat b { display: block; font-family: var(--font-display); font-size: 1.6rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 0.75rem; color: var(--muted); }
+  .stats-title { margin: 0 0 8px; text-align: center; }
+
+  /* Two players */
+  .players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .player { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 10px 12px; background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; }
+  .player.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .player .pname { width: 100%; min-width: 0; padding: 2px 0; font-size: 1rem; background: transparent; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; }
+  .pmeta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pmeta b { color: var(--fg); font-family: var(--font-display); }
+  .pscore { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; line-height: 1; color: var(--fg); }
+  .turn { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; line-height: 1.25; overflow-wrap: anywhere; }
+  .turn small { display: block; margin-top: 2px; font-family: var(--font-body); font-weight: 500; font-size: 0.85rem; color: var(--muted); }
+  .levels.two { grid-template-columns: 1fr 1fr; }
+  .who { margin-left: 8px; font-family: var(--font-body); font-weight: 500; font-size: 0.8rem; color: var(--muted); }
+
+  /* Shop */
+  .shop-head h2 { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.15; margin: 0 0 4px; }
+  .shop-head p { margin: 0; color: var(--muted); }
+  .earn { border: 1px dashed var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .earn-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+  .earn-row b { font-family: var(--font-display); }
+  .earn-note { margin: 0; color: var(--muted); font-size: 0.85rem; }
+  .shop { display: flex; flex-direction: column; gap: 12px; }
+  .item { display: grid; grid-template-columns: auto 1fr; gap: 12px 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .item .sym { width: 46px; height: 46px; border-radius: 12px; font-size: 1.2rem; }
+  .item h3 { margin: 0; font-family: var(--font-display); font-size: 1.1rem; line-height: 1.25; }
+  .item p { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+  .buy-row { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .price { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .price .coin { width: 16px; height: 16px; box-shadow: inset 0 0 0 2.5px var(--coin-ring); }
+  .owned { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .buy { min-height: 44px; padding: 0 18px; }
+  .buy:disabled { background: var(--track); color: var(--muted); cursor: default; }
+
+  @media (max-width: 380px) {
+    .range { font-size: 2.8rem; }
+    .btn { padding: 0 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .span { transition: none; }
+    .btn:active { transform: none; }
+  }
+</style>
+
+</head>
+<body>
+<main class="app">
+  <div class="topbar">
+    <header>
+      <h1>Son topish</h1>
+      <p id="sub">Men 1 dan 100 gacha son o'yladim. 7 urinishda toping.</p>
+    </header>
+    <div class="coins" role="status" aria-label="Tangalaringiz"><i class="coin"></i><b id="coinCount">10</b></div>
+  </div>
+
+  <nav class="tabs" aria-label="Bo'limlar">
+    <a href="#oyin" id="tabGame">O'yin</a>
+    <a href="#ikki" id="tabDuo">2 kishilik</a>
+    <a href="#dokon" id="tabShop">Do'kon</a>
+  </nav>
+
+  <div class="view" id="viewGame">
+    <div class="levels" role="radiogroup" aria-label="Daraja" id="levels"></div>
+
+    <section class="board" aria-label="O'yin maydoni">
+      <div>
+        <div class="label">Son shu oraliqda</div>
+        <div class="range" aria-live="polite"><span id="lo">1</span><span class="dash">–</span><span id="hi">100</span></div>
+      </div>
+
+      <div class="ruler" aria-hidden="true">
+        <div class="track" id="track"><div class="span" id="span"></div></div>
+        <div class="ends"><span>1</span><span id="maxLabel">100</span></div>
+      </div>
+
+      <div class="status">
+        <div class="pips" id="pips" aria-hidden="true"></div>
+        <div class="left">Qoldi: <b id="left">7</b></div>
+      </div>
+
+      <div class="notes" id="notes" hidden></div>
+
+      <form id="form" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="guess" class="label" style="position:absolute;left:-9999px">Taxmin</label>
+          <input type="text" id="guess" name="guess" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Taxmin" enterkeyhint="go">
+        </div>
+        <button class="btn" type="submit" id="send">Taxmin</button>
+      </form>
+
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+      <div class="result" id="result" hidden>
+        <h2 id="rTitle"></h2>
+        <p id="rText"></p>
+        <div class="earned" id="rCoins" hidden><i class="coin"></i><span id="rCoinsText"></span></div>
+        <div class="actions">
+          <button class="btn" type="button" id="again">Yana o'ynash</button>
+          <a class="btn ghost" href="#dokon">Do'konga</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="helpers-head">
+          <span class="label">Yordamchilar</span>
+          <a href="#dokon">Do'kon</a>
+        </div>
+        <div class="helpers" id="helpers"></div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:6px">Taxminlar</div>
+        <ol class="history" id="history"></ol>
+        <p class="empty" id="empty">Hali taxmin qilmadingiz. Odatda oraliqning o'rtasidan boshlash yaxshi.</p>
+      </div>
+    </section>
+
+    <section aria-label="Natijalar">
+      <div class="label stats-title" id="statsTitle">O'rta daraja natijalari</div>
+      <div class="stats">
+        <div class="stat"><b id="sPlayed">0</b><span>O'yin</span></div>
+        <div class="stat"><b id="sWon">0</b><span>G'alaba</span></div>
+        <div class="stat"><b id="sBest">–</b><span>Eng kam urinish</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="viewDuo" hidden>
+    <div class="levels two" role="radiogroup" aria-label="Raqib" id="duoModes">
+      <button type="button" role="radio" aria-checked="true" data-mode="friend">Do'st bilan</button>
+      <button type="button" role="radio" aria-checked="false" data-mode="robot">Robot bilan</button>
+    </div>
+    <div class="levels" role="radiogroup" aria-label="Daraja" id="duoLevels"></div>
+
+    <section class="board" aria-label="Ikki kishilik o'yin">
+      <div class="players">
+        <div class="player" id="pl0">
+          <input type="text" class="pname" id="name0" maxlength="12" value="1-o'yinchi" aria-label="Birinchi o'yinchi ismi" autocomplete="off">
+          <div class="pmeta"><span><span class="pscore" id="ds0">0</span> g'alaba</span><span>Qoldi: <b id="dl0">7</b></span></div>
+        </div>
+        <div class="player" id="pl1">
+          <input type="text" class="pname" id="name1" maxlength="12" value="2-o'yinchi" aria-label="Ikkinchi o'yinchi ismi" autocomplete="off">
+          <div class="pmeta"><span><span class="pscore" id="ds1">0</span> g'alaba</span><span>Qoldi: <b id="dl1">7</b></span></div>
+        </div>
+      </div>
+
+      <div class="turn" id="turn" aria-live="polite"></div>
+
+      <div>
+        <div class="label">Son shu oraliqda</div>
+        <div class="range" aria-live="polite"><span id="duoLo">1</span><span class="dash">&ndash;</span><span id="duoHi">100</span></div>
+      </div>
+
+      <div class="ruler" aria-hidden="true">
+        <div class="track" id="duoTrack"><div class="span" id="duoSpan"></div></div>
+        <div class="ends"><span>1</span><span id="duoMax">100</span></div>
+      </div>
+
+      <form id="duoForm" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="duoGuess" class="label" style="position:absolute;left:-9999px">Taxmin</label>
+          <input type="text" id="duoGuess" name="duoGuess" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Taxmin" enterkeyhint="go">
+        </div>
+        <button class="btn" type="submit" id="duoSend">Taxmin</button>
+      </form>
+
+      <div class="msg" id="duoMsg" role="status" aria-live="polite"></div>
+
+      <div class="result" id="duoResult" hidden>
+        <h2 id="duoRTitle"></h2>
+        <p id="duoRText"></p>
+        <button class="btn wide" type="button" id="duoAgain">Yana o'ynash</button>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:6px">Taxminlar</div>
+        <ol class="history" id="duoHistory"></ol>
+        <p class="empty" id="duoEmpty">Bitta son, navbat bilan taxmin. Birinchi topgan yutadi. Telefonni navbati kelgan o'yinchiga bering.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="viewShop" hidden>
+    <div class="shop-head">
+      <h2>Do'kon</h2>
+      <p>Tangaga yordamchi sotib oling va o'yin paytida ishlating.</p>
+    </div>
+
+    <div class="earn" id="earn"></div>
+
+    <div class="msg" id="shopMsg" role="status" aria-live="polite"></div>
+
+    <div class="shop" id="shopList"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var LEVELS = {
+    easy: { name: "Oson", max: 50, tries: 6, reward: 5 },
+    mid:  { name: "O'rta", max: 100, tries: 7, reward: 10 },
+    hard: { name: "Qiyin", max: 1000, tries: 10, reward: 25 }
+  };
+  var BONUS = 2;
+  var START_COINS = 10;
+  var ITEMS = [
+    { id: "parity", sym: "2n", name: "Juft yoki toq", short: "Juft / toq", price: 6,
+      desc: "Yashirin son juft yoki toqligini aytadi." },
+    { id: "extra", sym: "+1", name: "Qo'shimcha urinish", short: "+1 urinish", price: 10,
+      desc: "Joriy o'yinga bitta urinish qo'shadi." },
+    { id: "halve", sym: "½", name: "Yarim qil", short: "Yarim qil", price: 14,
+      desc: "Oraliqni yarmiga qisqartiradi. Son qolgan yarmida bo'ladi." },
+    { id: "digit", sym: "#", name: "Oxirgi raqam", short: "Oxirgi raqam", price: 18,
+      desc: "Yashirin sonning oxirgi raqamini ko'rsatadi." }
+  ];
+  var STORE_KEY = "son-topish-natijalar";
+  var WALLET_KEY = "son-topish-hamyon";
+
+  var levelKey = "mid";
+  var g = null;
+  var stats = loadStats();
+  var wallet = loadWallet();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var el = {
+    sub: $("sub"), coinCount: $("coinCount"), tabGame: $("tabGame"), tabShop: $("tabShop"),
+    viewGame: $("viewGame"), viewShop: $("viewShop"),
+    levels: $("levels"), lo: $("lo"), hi: $("hi"), track: $("track"), span: $("span"),
+    maxLabel: $("maxLabel"), pips: $("pips"), left: $("left"), notes: $("notes"),
+    form: $("form"), guess: $("guess"), msg: $("msg"),
+    result: $("result"), rTitle: $("rTitle"), rText: $("rText"), rCoins: $("rCoins"), rCoinsText: $("rCoinsText"), again: $("again"),
+    helpers: $("helpers"), history: $("history"), empty: $("empty"), statsTitle: $("statsTitle"),
+    sPlayed: $("sPlayed"), sWon: $("sWon"), sBest: $("sBest"),
+    earn: $("earn"), shopMsg: $("shopMsg"), shopList: $("shopList"),
+    viewDuo: $("viewDuo"), tabDuo: $("tabDuo"), duoLevels: $("duoLevels"), duoLo: $("duoLo"), duoHi: $("duoHi"),
+    duoTrack: $("duoTrack"), duoSpan: $("duoSpan"), duoMax: $("duoMax"), duoForm: $("duoForm"), duoGuess: $("duoGuess"),
+    duoMsg: $("duoMsg"), duoResult: $("duoResult"), duoRTitle: $("duoRTitle"), duoRText: $("duoRText"), duoAgain: $("duoAgain"),
+    duoHistory: $("duoHistory"), duoEmpty: $("duoEmpty"), turn: $("turn"),
+    pl0: $("pl0"), pl1: $("pl1"), name0: $("name0"), name1: $("name1"),
+    ds0: $("ds0"), ds1: $("ds1"), dl0: $("dl0"), dl1: $("dl1"), duoModes: $("duoModes"), duoSend: $("duoSend")
+  };
+
+  function loadStats() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) { var o = JSON.parse(raw); if (o && typeof o === "object") return o; }
+    } catch (e) {}
+    return {};
+  }
+  function saveStats() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(stats)); } catch (e) {}
+  }
+  function loadWallet() {
+    var w = { coins: START_COINS, inv: {} };
+    try {
+      var raw = localStorage.getItem(WALLET_KEY);
+      if (raw) {
+        var o = JSON.parse(raw);
+        if (o && typeof o.coins === "number" && o.coins >= 0) { w.coins = Math.floor(o.coins); }
+        if (o && o.inv && typeof o.inv === "object") {
+          ITEMS.forEach(function (it) {
+            var n = Number(o.inv[it.id]);
+            if (n > 0) { w.inv[it.id] = Math.floor(n); }
+          });
+        }
+      }
+    } catch (e) {}
+    return w;
+  }
+  function saveWallet() {
+    try { localStorage.setItem(WALLET_KEY, JSON.stringify(wallet)); } catch (e) {}
+  }
+  function owned(id) { return wallet.inv[id] || 0; }
+  function levelStats() {
+    var s = stats[levelKey];
+    if (!s) { s = stats[levelKey] = { played: 0, won: 0, best: 0 }; }
+    return s;
+  }
+
+  function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+  function pct(n, max) { return ((n - 1) / (max - 1)) * 100; }
+  function findItem(id) {
+    for (var i = 0; i < ITEMS.length; i++) { if (ITEMS[i].id === id) return ITEMS[i]; }
+    return null;
+  }
+
+  function buildLevels(box, onPick) {
+    box.innerHTML = "";
+    Object.keys(LEVELS).forEach(function (k) {
+      var L = LEVELS[k];
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "radio");
+      b.setAttribute("data-key", k);
+      b.innerHTML = L.name + "<small>1–" + L.max + " · " + L.tries + " urinish</small>";
+      b.addEventListener("click", function () { onPick(k); });
+      box.appendChild(b);
+    });
+  }
+
+  function newGame() {
+    var L = LEVELS[levelKey];
+    g = {
+      secret: randInt(1, L.max), lo: 1, hi: L.max, left: L.tries, total: L.tries,
+      list: [], over: false, won: false, earned: 0, record: false, parity: null, digit: null
+    };
+    el.guess.value = "";
+    setMsg("", "");
+    render();
+    if (!window.matchMedia("(pointer: coarse)").matches && !el.viewGame.hidden) { el.guess.focus(); }
+  }
+
+  function setMsg(text, cls) {
+    el.msg.textContent = text;
+    el.msg.className = "msg" + (cls ? " " + cls : "");
+  }
+
+  function submitGuess(e) {
+    e.preventDefault();
+    if (g.over) return;
+    var L = LEVELS[levelKey];
+    var v = el.guess.value.trim();
+    if (!/^\d+$/.test(v)) { setMsg("Son kiriting.", "warn"); return; }
+    var n = parseInt(v, 10);
+    if (n < 1 || n > L.max) { setMsg("1 dan " + L.max + " gacha son kiriting. Bu urinish hisoblanmadi.", "warn"); return; }
+    if (n < g.lo || n > g.hi) { setMsg("Son " + g.lo + "–" + g.hi + " oralig'ida. Bu urinish hisoblanmadi.", "warn"); return; }
+
+    g.left -= 1;
+    var r = n === g.secret ? 0 : (n < g.secret ? 1 : -1);
+    g.list.push({ n: n, r: r });
+    el.guess.value = "";
+
+    if (r === 0) {
+      g.over = true; g.won = true;
+    } else {
+      if (r === 1) { g.lo = n + 1; setMsg(n + " dan kattaroq ↑", "up"); }
+      else { g.hi = n - 1; setMsg(n + " dan kichikroq ↓", "down"); }
+      if (g.left === 0) { g.over = true; }
+    }
+    if (g.over) { finish(); }
+    render();
+    if (!g.over) { el.guess.focus(); }
+  }
+
+  function finish() {
+    var L = LEVELS[levelKey];
+    var s = levelStats();
+    s.played += 1;
+    if (g.won) {
+      s.won += 1;
+      var used = g.list.length;
+      if (!s.best || used < s.best) { s.best = used; g.record = true; }
+      g.earned = L.reward + g.left * BONUS;
+      wallet.coins += g.earned;
+      saveWallet();
+    }
+    saveStats();
+  }
+
+  function canUse(id) {
+    if (!g || g.over) return false;
+    if (owned(id) < 1) return false;
+    if (id === "parity") return g.parity === null;
+    if (id === "digit") return g.digit === null;
+    if (id === "halve") return g.lo < g.hi;
+    return true;
+  }
+
+  function useItem(id) {
+    if (!canUse(id)) return;
+    if (id === "parity") {
+      g.parity = g.secret % 2 === 0 ? "juft" : "toq";
+      setMsg("Yashirin son " + g.parity + ".", "good");
+    } else if (id === "digit") {
+      g.digit = g.secret % 10;
+      setMsg("Yashirin sonning oxirgi raqami: " + g.digit + ".", "good");
+    } else if (id === "extra") {
+      g.left += 1;
+      g.total += 1;
+      setMsg("Bitta urinish qo'shildi.", "good");
+    } else if (id === "halve") {
+      var mid = Math.floor((g.lo + g.hi) / 2);
+      if (g.secret <= mid) { g.hi = mid; } else { g.lo = mid + 1; }
+      setMsg("Oraliq yarmiga qisqardi: " + g.lo + "–" + g.hi + ".", "good");
+    }
+    wallet.inv[id] = owned(id) - 1;
+    saveWallet();
+    render();
+  }
+
+  function render() {
+    var L = LEVELS[levelKey];
+    var used = g.total - g.left;
+
+    el.coinCount.textContent = String(wallet.coins);
+
+    Array.prototype.forEach.call(el.levels.children, function (b) {
+      b.setAttribute("aria-checked", b.getAttribute("data-key") === levelKey ? "true" : "false");
+    });
+    el.sub.textContent = "Men 1 dan " + L.max + " gacha son o'yladim. " + L.tries + " urinishda toping.";
+    el.maxLabel.textContent = String(L.max);
+    el.lo.textContent = String(g.lo);
+    el.hi.textContent = String(g.hi);
+    el.left.textContent = String(g.left);
+
+    // ruler
+    var w = Math.max(pct(g.hi, L.max) - pct(g.lo, L.max), 1.5);
+    var left = Math.min(pct(g.lo, L.max), 100 - w);
+    el.span.style.left = left + "%";
+    el.span.style.width = w + "%";
+    Array.prototype.slice.call(el.track.querySelectorAll(".tick")).forEach(function (t) { t.remove(); });
+    g.list.forEach(function (it) { addTick(it.n, it.r === 0 ? "win" : (it.r === 1 ? "up" : "")); });
+    if (g.over && !g.won) { addTick(g.secret, "secret"); }
+
+    // pips
+    el.pips.innerHTML = "";
+    for (var i = 0; i < g.total; i++) {
+      var p = document.createElement("span");
+      p.className = "pip";
+      if (i < g.list.length) {
+        var r = g.list[i].r;
+        p.className += r === 0 ? " win" : (r === 1 ? " up" : " down");
+      }
+      el.pips.appendChild(p);
+    }
+
+    // clues bought in the shop
+    var clues = [];
+    if (g.parity) { clues.push("Son " + g.parity); }
+    if (g.digit !== null) { clues.push("Oxirgi raqam: " + g.digit); }
+    el.notes.innerHTML = "";
+    clues.forEach(function (c) {
+      var s = document.createElement("span");
+      s.className = "chip";
+      s.textContent = c;
+      el.notes.appendChild(s);
+    });
+    el.notes.hidden = clues.length === 0;
+
+    // helpers
+    el.helpers.innerHTML = "";
+    ITEMS.forEach(function (it) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "helper";
+      b.setAttribute("data-id", it.id);
+      b.disabled = !canUse(it.id);
+      b.innerHTML = '<span class="sym">' + it.sym + '</span><span class="t">' + it.short + '</span><span class="c">' + owned(it.id) + "</span>";
+      el.helpers.appendChild(b);
+    });
+
+    // history, newest first
+    el.history.innerHTML = "";
+    for (var j = g.list.length - 1; j >= 0; j--) {
+      var it2 = g.list[j];
+      var li = document.createElement("li");
+      var hint = it2.r === 0 ? "To'g'ri" : (it2.r === 1 ? "Kattaroq ↑" : "Kichikroq ↓");
+      var cls = it2.r === 0 ? "win" : (it2.r === 1 ? "up" : "down");
+      li.innerHTML = '<span class="n">' + (j + 1) + '.</span><span class="g">' + it2.n + '</span><span class="h ' + cls + '">' + hint + "</span>";
+      el.history.appendChild(li);
+    }
+    el.empty.hidden = g.list.length > 0;
+
+    // form / result
+    el.form.hidden = g.over;
+    el.result.hidden = !g.over;
+    if (g.over) {
+      el.result.className = "result" + (g.won ? " won" : "");
+      if (g.won) {
+        el.rTitle.textContent = "Topdingiz!";
+        el.rText.innerHTML = "Son <b>" + g.secret + "</b> edi. Siz uni <b>" + used + " ta urinishda</b> topdingiz." +
+          (g.record ? " Bu sizning eng yaxshi natijangiz." : "");
+        el.rCoins.hidden = false;
+        el.rCoinsText.textContent = "+" + g.earned + " tanga";
+      } else {
+        el.rTitle.textContent = "Urinishlar tugadi";
+        el.rText.innerHTML = "Son <b>" + g.secret + "</b> edi. Har safar oraliqning o'rtasini tanlasangiz, " +
+          L.tries + " urinishda topish mumkin.";
+        el.rCoins.hidden = true;
+      }
+      setMsg("", "");
+      if (!el.viewGame.hidden) { el.again.focus(); }
+    }
+
+    // stats
+    var s2 = levelStats();
+    el.statsTitle.textContent = L.name + " daraja natijalari";
+    el.sPlayed.textContent = String(s2.played);
+    el.sWon.textContent = String(s2.won);
+    el.sBest.textContent = s2.best ? String(s2.best) : "–";
+  }
+
+  function addTick(n, cls) {
+    var L = LEVELS[levelKey];
+    var t = document.createElement("i");
+    t.className = "tick" + (cls ? " " + cls : "");
+    t.style.left = pct(n, L.max) + "%";
+    el.track.appendChild(t);
+  }
+
+  // Shop
+  function renderEarn() {
+    var html = "";
+    Object.keys(LEVELS).forEach(function (k) {
+      var L = LEVELS[k];
+      html += '<div class="earn-row"><span>' + L.name + " (1–" + L.max + ")</span><b>" + L.reward + " tanga</b></div>";
+    });
+    html += '<p class="earn-note">Topgan har bir son uchun shuncha tanga olasiz. Qolgan har bir urinish uchun yana ' + BONUS +
+      " tanga qo'shiladi. Topa olmasangiz, tanga berilmaydi.</p>";
+    el.earn.innerHTML = '<span class="label">Tanga qanday topiladi</span>' + html;
+  }
+
+  function renderShop() {
+    el.coinCount.textContent = String(wallet.coins);
+    el.shopList.innerHTML = "";
+    ITEMS.forEach(function (it) {
+      var can = wallet.coins >= it.price;
+      var d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML =
+        '<span class="sym">' + it.sym + "</span>" +
+        "<div><h3>" + it.name + "</h3><p>" + it.desc + "</p></div>" +
+        '<div class="buy-row"><span class="price"><i class="coin"></i>' + it.price + "</span>" +
+        '<span class="owned">Sizda: ' + owned(it.id) + "</span>" +
+        '<button class="btn buy" type="button" data-id="' + it.id + '"' + (can ? "" : " disabled") + ">" +
+        (can ? "Sotib olish" : "Tanga yetmaydi") + "</button></div>";
+      el.shopList.appendChild(d);
+    });
+  }
+
+  function buy(id) {
+    var it = findItem(id);
+    if (!it) return;
+    if (wallet.coins < it.price) {
+      el.shopMsg.textContent = "Tanga yetmaydi. Yana son topib tanga yig'ing.";
+      el.shopMsg.className = "msg warn";
+      return;
+    }
+    wallet.coins -= it.price;
+    wallet.inv[id] = owned(id) + 1;
+    saveWallet();
+    el.shopMsg.textContent = "Sotib olindi: " + it.name + ". O'yin sahifasida ishlating.";
+    el.shopMsg.className = "msg good";
+    renderShop();
+    render();
+  }
+
+  function route(scroll) {
+    var h = location.hash;
+    var shop = h === "#dokon";
+    var duoView = h === "#ikki";
+    el.viewGame.hidden = shop || duoView;
+    el.viewShop.hidden = !shop;
+    el.viewDuo.hidden = !duoView;
+    el.tabGame.setAttribute("aria-current", shop || duoView ? "false" : "page");
+    el.tabDuo.setAttribute("aria-current", duoView ? "page" : "false");
+    el.tabShop.setAttribute("aria-current", shop ? "page" : "false");
+    var L0 = LEVELS[levelKey];
+    el.sub.textContent = duoView
+      ? "Ikki kishi bitta telefonda o'ynaydi. Birinchi topgan yutadi."
+      : "Men 1 dan " + L0.max + " gacha son o'yladim. " + L0.tries + " urinishda toping.";
+    if (shop) {
+      el.shopMsg.textContent = "";
+      el.shopMsg.className = "msg";
+      renderShop();
+    }
+    if (scroll) { window.scrollTo(0, 0); }
+  }
+
+  // Two players on one phone
+  var duoLevel = "mid";
+  var duo = null;
+  var scores = [0, 0];
+  var duoFirst = 0;
+  var duoRobot = false;
+  var duoTimer = null;
+  var savedName = "";
+
+  function nameOf(i) {
+    var box = i === 0 ? el.name0 : el.name1;
+    var v = box.value.trim();
+    return v || (i === 0 ? "1-o'yinchi" : "2-o'yinchi");
+  }
+
+  function duoSay(text, cls) {
+    el.duoMsg.textContent = text;
+    el.duoMsg.className = "msg" + (cls ? " " + cls : "");
+  }
+
+  function duoNew() {
+    var L = LEVELS[duoLevel];
+    duo = {
+      secret: randInt(1, L.max), lo: 1, hi: L.max, left: [L.tries, L.tries],
+      turn: duoFirst, list: [], over: false, winner: -1
+    };
+    el.duoGuess.value = "";
+    duoSay("", "");
+    if (duoTimer) { clearTimeout(duoTimer); duoTimer = null; }
+    duoRender();
+    if (duoRobot && duo.turn === 1) { scheduleRobot(); }
+  }
+
+  function duoTick(n, cls) {
+    var L = LEVELS[duoLevel];
+    var t = document.createElement("i");
+    t.className = "tick" + (cls ? " " + cls : "");
+    t.style.left = pct(n, L.max) + "%";
+    el.duoTrack.appendChild(t);
+  }
+
+  function duoRender() {
+    var L = LEVELS[duoLevel];
+    Array.prototype.forEach.call(el.duoLevels.children, function (btn) {
+      btn.setAttribute("aria-checked", btn.getAttribute("data-key") === duoLevel ? "true" : "false");
+    });
+    Array.prototype.forEach.call(el.duoModes.children, function (btn) {
+      btn.setAttribute("aria-checked", (btn.getAttribute("data-mode") === "robot") === duoRobot ? "true" : "false");
+    });
+    el.duoLo.textContent = String(duo.lo);
+    el.duoHi.textContent = String(duo.hi);
+    el.duoMax.textContent = String(L.max);
+
+    var w = Math.max(pct(duo.hi, L.max) - pct(duo.lo, L.max), 1.5);
+    el.duoSpan.style.left = Math.min(pct(duo.lo, L.max), 100 - w) + "%";
+    el.duoSpan.style.width = w + "%";
+    Array.prototype.slice.call(el.duoTrack.querySelectorAll(".tick")).forEach(function (t) { t.remove(); });
+    duo.list.forEach(function (g2) { duoTick(g2.n, g2.r === 0 ? "win" : (g2.r === 1 ? "up" : "")); });
+    if (duo.over && duo.winner === -1) { duoTick(duo.secret, "secret"); }
+
+    [0, 1].forEach(function (i) {
+      el["pl" + i].className = "player" + (!duo.over && duo.turn === i ? " active" : "");
+      el["ds" + i].textContent = String(scores[i]);
+      el["dl" + i].textContent = String(duo.left[i]);
+    });
+
+    el.turn.innerHTML = "";
+    var tn = document.createElement("span");
+    var ts = document.createElement("small");
+    if (duo.over) {
+      tn.textContent = duo.winner === -1 ? "Durang" : nameOf(duo.winner) + " topdi";
+      ts.textContent = "O'yin tugadi";
+    } else {
+      tn.textContent = nameOf(duo.turn) + " navbati";
+      ts.textContent = duoRobot
+        ? (duo.turn === 1 ? "Robot o'ylayapti..." : "Taxmin kiriting.")
+        : "Telefonni shu o'yinchiga bering va taxmin kiriting.";
+    }
+    el.turn.appendChild(tn);
+    el.turn.appendChild(ts);
+
+    el.duoHistory.innerHTML = "";
+    for (var j = duo.list.length - 1; j >= 0; j--) {
+      var it = duo.list[j];
+      var li = document.createElement("li");
+      var a = document.createElement("span");
+      a.className = "n";
+      a.textContent = (j + 1) + ".";
+      var gg = document.createElement("span");
+      gg.className = "g";
+      gg.textContent = String(it.n);
+      var who = document.createElement("small");
+      who.className = "who";
+      who.textContent = nameOf(it.p);
+      gg.appendChild(who);
+      var c = document.createElement("span");
+      c.className = "h " + (it.r === 0 ? "win" : (it.r === 1 ? "up" : "down"));
+      c.textContent = it.r === 0 ? "To'g'ri" : (it.r === 1 ? "Kattaroq ↑" : "Kichikroq ↓");
+      li.appendChild(a);
+      li.appendChild(gg);
+      li.appendChild(c);
+      el.duoHistory.appendChild(li);
+    }
+    el.duoEmpty.hidden = duo.list.length > 0;
+
+    var thinking = duoRobot && !duo.over && duo.turn === 1;
+    el.duoGuess.disabled = thinking;
+    el.duoSend.disabled = thinking;
+    el.duoForm.hidden = duo.over;
+    el.duoResult.hidden = !duo.over;
+    if (duo.over) {
+      var tally = nameOf(0) + " " + scores[0] + " : " + scores[1] + " " + nameOf(1);
+      if (duo.winner === -1) {
+        el.duoRTitle.textContent = "Durang";
+        el.duoRText.textContent = "Son " + duo.secret + " edi. Ikkalangiz ham topa olmadingiz. Hisob: " + tally + ".";
+        el.duoResult.className = "result";
+      } else {
+        var tries = L.tries - duo.left[duo.winner];
+        el.duoRTitle.textContent = nameOf(duo.winner) + " yutdi!";
+        el.duoRText.textContent = "Son " + duo.secret + " edi. " + tries + " ta urinishda topdi. Hisob: " + tally + ".";
+        el.duoResult.className = "result won";
+      }
+      duoSay("", "");
+    }
+  }
+
+  function duoSubmit(e) {
+    e.preventDefault();
+    if (duo.over) return;
+    var L = LEVELS[duoLevel];
+    var v = el.duoGuess.value.trim();
+    if (!/^\d+$/.test(v)) { duoSay("Son kiriting.", "warn"); return; }
+    var n = parseInt(v, 10);
+    if (n < 1 || n > L.max) { duoSay("1 dan " + L.max + " gacha son kiriting. Bu urinish hisoblanmadi.", "warn"); return; }
+    if (n < duo.lo || n > duo.hi) { duoSay("Son " + duo.lo + "–" + duo.hi + " oralig'ida. Bu urinish hisoblanmadi.", "warn"); return; }
+
+    if (duoRobot && duo.turn === 1) return;
+    duoApply(n);
+  }
+
+  function duoApply(n) {
+    var p = duo.turn;
+    duo.left[p] -= 1;
+    var r = n === duo.secret ? 0 : (n < duo.secret ? 1 : -1);
+    duo.list.push({ p: p, n: n, r: r });
+    el.duoGuess.value = "";
+
+    if (r === 0) {
+      duo.over = true;
+      duo.winner = p;
+      scores[p] += 1;
+    } else {
+      var who = duoRobot && p === 1 ? "Robot dedi: " : "";
+      if (r === 1) { duo.lo = n + 1; duoSay(who + n + " dan kattaroq ↑", "up"); }
+      else { duo.hi = n - 1; duoSay(who + n + " dan kichikroq ↓", "down"); }
+      var other = 1 - p;
+      if (duo.left[other] > 0) { duo.turn = other; }
+      else if (duo.left[p] > 0) { duo.turn = p; }
+      else { duo.over = true; duo.winner = -1; }
+    }
+    duoRender();
+    if (duo.over) {
+      el.duoAgain.focus();
+    } else if (duoRobot && duo.turn === 1) {
+      scheduleRobot();
+    } else {
+      el.duoGuess.focus();
+    }
+  }
+
+  function scheduleRobot() {
+    if (duoTimer) { clearTimeout(duoTimer); }
+    duoTimer = setTimeout(robotMove, 900);
+  }
+
+  // The robot only uses what the hints already told it: it aims near the middle of the range, with some slack so it can be beaten.
+  function robotMove() {
+    duoTimer = null;
+    if (!duo || duo.over || !duoRobot || duo.turn !== 1) return;
+    var span = duo.hi - duo.lo;
+    var mid = Math.floor((duo.lo + duo.hi) / 2);
+    var jitter = Math.round((Math.random() * 2 - 1) * span * 0.2);
+    var n = Math.min(duo.hi, Math.max(duo.lo, mid + jitter));
+    duoApply(n);
+  }
+
+  el.duoForm.addEventListener("submit", duoSubmit);
+  el.duoAgain.addEventListener("click", function () {
+    duoFirst = 1 - duoFirst;
+    duoNew();
+    if (!window.matchMedia("(pointer: coarse)").matches) { el.duoGuess.focus(); }
+  });
+  el.duoModes.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-mode]");
+    if (!btn) return;
+    var robot = btn.getAttribute("data-mode") === "robot";
+    if (robot === duoRobot) return;
+    duoRobot = robot;
+    if (robot) {
+      savedName = el.name1.value;
+      el.name1.value = "Robot";
+      el.name1.disabled = true;
+    } else {
+      el.name1.value = savedName || "2-o'yinchi";
+      el.name1.disabled = false;
+    }
+    scores = [0, 0];
+    duoFirst = 0;
+    duoNew();
+  });
+  el.name0.addEventListener("input", function () { duoRender(); });
+  el.name1.addEventListener("input", function () { duoRender(); });
+
+  el.form.addEventListener("submit", submitGuess);
+  el.again.addEventListener("click", newGame);
+  el.helpers.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-id]");
+    if (b) { useItem(b.getAttribute("data-id")); }
+  });
+  el.shopList.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-id]");
+    if (b) { buy(b.getAttribute("data-id")); }
+  });
+  window.addEventListener("hashchange", function () { route(true); });
+
+  buildLevels(el.levels, function (k) { levelKey = k; newGame(); });
+  buildLevels(el.duoLevels, function (k) { duoLevel = k; duoNew(); });
+  renderEarn();
+  newGame();
+  duoNew();
+  route(false);
+})();
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();}}catch(e){}</script>
+</body>
+</html>
